@@ -1,28 +1,54 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" class="container">
+    <div class="row mt-5" v-if="arrNewConfirmed.length > 0">
+      <div class="col">
+        <h2>New Confirmed</h2>
+        <line-chart :chartData="arrNewConfirmed" :option="chartOptions" label="New_Confirmed"
+        :chartColors="positiveChartColors"></line-chart>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios';
+import LineChart from './components/LineChart.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    LineChart
+  },
+  data() {
+    return {
+      arrNewConfirmed: [],
+      arrNewDeaths: [],
+      arrNewRecovered: [],
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false
+      },
+      positiveChartColors: {
+        borderColor: "#077187",
+        pointBorderColor: "#0E1428",
+        pointBackgroundColor: "#AFD6AC",
+        backgroundColor: "#74A57F"
+      }
+    };
+  },
+  async created() {
+    const { data } = await axios.get("https://corona-api.com/timeline");
+    console.log(data)
+    data.data.forEach(d => {
+      this.arrNewConfirmed.push({date: d.date, total: d.new_confirmed});
+      this.arrNewDeaths.push({date: d.date, total: d.new_deaths});
+      this.arrNewRecovered.push({date: d.date, total: d.new_recovered});
+    })
+    console.log(this.arrNewConfirmed)
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
